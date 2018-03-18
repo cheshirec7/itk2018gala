@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="2018">
+    <meta name="author" content="Eric Totten">
+    <meta name="keyword" content="2018">
+    <title>2018 Butterfly Gala</title>
+    <style>
+        body {
+            background: none #000;
+            line-height: 1.1;
+            color: #fff;
+            font-size: 2em;
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        table,
+        th {
+            border: 1px solid #fff;
+        }
+
+        td {
+            border: 1px solid #999;
+            text-align: right;
+        }
+
+        td,
+        th {
+            padding: 5px 8px;
+        }
+
+        th {
+            background-color: #12b9ff;
+            color: #000;
+        }
+
+        td:first-child {
+            width: 1px;
+        }
+
+        td:nth-child(2) {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body id="myBody">
+<!--<img src="itk.png" width="200"/>-->
+<table>
+    <thead>
+    <tr>
+        <th colspan="2">Item</th>
+        <th width="1">Value</th>
+        <th width="1">Bid</th>
+        <th width="1">Bidder</th>
+    </tr>
+    </thead>
+    <tbody id="t_body">
+
+    </tbody>
+</table>
+
+<script>
+    'use strict';
+
+    let g_urlParams = {},
+        g_tbody = document.getElementById("t_body"),
+        g_itemsPerSlide = 16,
+        g_slideIdx = 0,
+        g_delayTime = 1000,
+        g_timer;
+
+    function buildBody(data) {
+        let s = '',
+            j = 0;
+
+        for (let i = g_slideIdx; i < data.length && j < g_itemsPerSlide; i++) {
+            let item = data[i];
+            s += '<tr>';
+            s += '<td>#' + item.num + '</td>';
+            s += '<td>' + item.name + '</td>';
+            s += '<td>$' + item.val + '</td>';
+            s += '<td>$' + item.bid + '</td>';
+            if (item.hasOwnProperty('bidder'))
+                s += '<td>#' + item.bidder + '</td>';
+            else
+                s += '<td></td>';
+            s += '</tr>';
+            j++;
+        }
+        g_slideIdx += g_itemsPerSlide;
+        return s;
+    }
+
+    function getData() {
+
+        fetch('data.json', {cache: "no-store"})
+            .then(response => {
+                if (!response.ok) {
+                    location.reload();
+                } else {
+                    return response.json();
+                }
+            }).then(myJson => {
+            g_tbody.innerHTML = buildBody(myJson);
+            g_timer = setInterval(() => {
+                if (g_slideIdx >= myJson.length) {
+                    clearInterval(g_timer);
+                    g_slideIdx = 0;
+                    getData();
+                } else {
+                    g_tbody.innerHTML = buildBody(myJson);
+                }
+            }, g_delayTime);
+        });
+    }
+
+    function getUrlParams() {
+        let match,
+            pl = /\+/g, // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) {
+                return decodeURIComponent(s.replace(pl, " "));
+            },
+            query = window.location.search.substring(1);
+
+        while (match = search.exec(query))
+            g_urlParams[decode(match[1])] = decode(match[2]);
+    }
+
+    getUrlParams();
+    let fSize = parseInt(g_urlParams["fsize"]),
+        items = parseInt(g_urlParams["rows"]),
+        delay = parseInt(g_urlParams["delay"]);
+
+    if (fSize > 0)
+        document.getElementById("myBody").style.fontSize = fSize + "px";
+    if (items > 0)
+        g_itemsPerSlide = items;
+    if (delay > 0)
+        g_delayTime = delay;
+    getData();
+
+</script>
+</body>
+
+</html>

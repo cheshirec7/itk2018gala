@@ -1,0 +1,18 @@
+{
+    "name": "itktransfer",
+    "version": "1.0.0",
+    "description": "itktransfer",
+    "main": "index.js",
+    "directories": {
+        "doc": "doc"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Eric Totten",
+    "license": "ISC",
+    "dependencies": {
+        "jsftp": "^2.1.3",
+        "request": "^2.83.0"
+    }
+}
